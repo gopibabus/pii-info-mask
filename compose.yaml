@@ -1,0 +1,16 @@
+services:
+  pii-info-mask:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: pii-info-mask:latest
+    ports:
+      # Published on localhost only. Change to "7860:7860" to expose it on your network.
+      - "127.0.0.1:7860:7860"
+    volumes:
+      # Model files live here: downloaded on the first start, reused afterwards.
+      - models:/models
+    restart: unless-stopped
+
+volumes:
+  models:

@@ -1,0 +1,16 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Model weights are downloaded at runtime, never committed
+*.onnx
+*.onnx_data
+*.safetensors
+models/

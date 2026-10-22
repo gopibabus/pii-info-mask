@@ -1,0 +1,28 @@
+[project]
+name = "pii-info-mask"
+version = "0.1.0"
+description = "Local web UI that masks PII in TXT, DOCX and PDF documents"
+readme = "README.md"
+authors = [
+    { name = "gopibabu srungavarapu", email = "s.gopibabu@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "gradio>=6.30.0",
+    "huggingface-hub>=2.2.0",
+    "numpy>=2.4.6",
+    "onnxruntime>=1.31.0",
+    "presidio-analyzer>=2.2.364",
+    # PyMuPDF 2.0 shifts the remaining text left after redaction; 1.x (tested 1.26-1.28) keeps it in place.
+    "pymupdf>=1.27,<2",
+    "python-docx>=1.2.0",
+    "tokenizers>=0.23.3",
+]
+
+[project.scripts]
+pii-info-mask = "pii_info_mask:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
