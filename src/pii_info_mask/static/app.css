@@ -25,11 +25,20 @@
 }
 
 /* Canvas: one centred 1152px column, one gutter. */
+/* The frame: one fluid gutter on both sides (24px on a phone, up to 72px on desktop) around a
+   1152px column. Gradio's own .main padding is zeroed so the gutter is the only margin. */
 .gradio-container {
-  max-width: 1200px !important;
-  padding: 0 var(--pad) 48px !important;
-  margin: 0 auto !important;
+  --frame: clamp(24px, 5vw, 72px);
+  max-width: none !important;
+  padding: 0 var(--frame) 64px !important;
+  margin: 0 !important;
   background: var(--ground);
+}
+.gradio-container .main {
+  max-width: 1152px !important;
+  margin: 0 auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 .gradio-container .main,
 .gradio-container .wrap { gap: var(--gap); }
@@ -80,12 +89,12 @@
 }
 
 /* Panels: white on the ground, one border, no shadow. */
-#workspace { gap: var(--gap); align-items: flex-start; }
+#workspace { gap: 24px; align-items: flex-start; }
 #workspace > .column {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  padding: 20px !important;
+  padding: clamp(20px, 2.4vw, 28px) !important;
   gap: var(--gap) !important;
 }
 #workspace > .column .block { border-color: var(--border); box-shadow: none; } /* taste-skill-ignore: removes the default */
@@ -190,6 +199,7 @@
 /* Buttons: icon 16px, 8px before the label. */
 #workspace button.lg {
   height: 40px;
+  white-space: nowrap;
   gap: 8px;
   font-weight: 500;
   font-size: var(--fs-body);
@@ -223,6 +233,14 @@
 /* Summary: the answer figure, then counts by kind. */
 .summary { font-variant-numeric: tabular-nums; }
 .summary-empty { margin: 0; font-size: var(--fs-body); color: var(--muted); }
+.summary .saved {
+  margin: -4px 0 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
 .summary-total { margin: 0 0 12px; font-size: var(--fs-body); color: var(--muted); }
 .summary-total .figure {
   font-size: var(--fs-kpi);

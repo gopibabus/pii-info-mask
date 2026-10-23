@@ -76,7 +76,7 @@ def _highlight(text: str, spans: list[Span]) -> list[tuple[str, str | None]]:
     return [p for p in parts if p[0]]
 
 
-def _summary(spans: list[Span], warnings: list[str]) -> str:
+def _summary(spans: list[Span], warnings: list[str], saved_as: str) -> str:
     counts = Counter(s.label for s in spans)
     total = sum(counts.values())
     top = max(counts.values(), default=1)
@@ -89,7 +89,9 @@ def _summary(spans: list[Span], warnings: list[str]) -> str:
     notes = "".join(f'<p class="notice">{escape(w)}</p>' for w in warnings)
     noun = "item" if total == 1 else "items"
     return (
-        f'<div class="summary"><p class="summary-total"><span class="figure">{total}</span> '
+        f'<div class="summary"><p class="saved" title="{escape(saved_as)}">Saved as '
+        f"{escape(saved_as)}</p>"
+        f'<p class="summary-total"><span class="figure">{total}</span> '
         f"{noun} masked</p><ul>{rows}</ul>{notes}</div>"
     )
 
@@ -127,10 +129,13 @@ def process(path: str | None):
         raise gr.Error(str(e)) from e
 
     return (
-        _summary(result.spans, result.warnings),
+        _summary(result.spans, result.warnings, dst.name),
         gr.HTML(visible=False),
         gr.HighlightedText(_highlight(result.text, result.spans), visible=True),
-        gr.DownloadButton(f"Download {dst.name}", value=str(dst), visible=True),
+        # A fixed label keeps the button on one line; the summary names the file.
+        gr.DownloadButton(
+            f"Download masked {src.suffix.lstrip('.').upper()}", value=str(dst), visible=True
+        ),
         _run_button("done"),
     )
 
