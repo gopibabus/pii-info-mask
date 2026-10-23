@@ -153,24 +153,72 @@
   color: #0b3d84;
 }
 
-/* Dropzone: a tone step, not a dashed box. */
-#workspace > .column [data-testid="file"] .wrap,
-#workspace > .column button.center { color: var(--muted); }
-#workspace > .column .block:has(input[type="file"]) {
+/* Dropzone: a tone step, not a dashed box. The upload icon sits in a neutral disc. */
+#upload {
   background: #f7f8fa;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--control) !important;
   border-style: solid !important;
+  transition: background-color 120ms ease, border-color 120ms ease;
 }
+#upload:hover,
+#upload:focus-within { background: #eef1f5; border-color: #9aa0a6 !important; }
+#upload [data-testid="upload-text"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--text);
+}
+#upload [data-testid="upload-text"] .or { display: none; }
+#upload [data-testid="upload-icon"] {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--text);
+}
+#upload [data-testid="upload-icon"] svg { width: 22px; height: 22px; stroke-width: 1.75; }
+#upload a { color: var(--muted); }
+.hint { margin: -8px 0 0; font-size: var(--fs-small); line-height: 16px; color: var(--muted); }
 
-/* Primary action */
-button.primary {
+/* Buttons: icon 16px, 8px before the label. */
+#workspace button.lg {
   height: 40px;
+  gap: 8px;
   font-weight: 500;
   font-size: var(--fs-body);
-  transition: background-color 120ms ease, transform 80ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
 }
-button.primary:active { transform: translateY(1px); }
-button.primary:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+#workspace button.lg img { width: 16px; height: 16px; margin: 0; }
+#workspace button.lg:active:not(:disabled) { transform: translateY(1px); }
+#workspace button.lg:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+#workspace button.primary:disabled {
+  background: #e4e6ea;
+  border-color: #e4e6ea;
+  color: var(--muted);
+  opacity: 1;
+  cursor: not-allowed;
+}
+#workspace button.primary:disabled img { opacity: 0.6; }
+#workspace button.busy:disabled {
+  background: #3d3d3d;
+  border-color: #3d3d3d;
+  color: #fff;
+  cursor: progress;
+}
+#workspace button.busy:disabled img { opacity: 1; }
+#workspace button.secondary {
+  background: var(--surface);
+  border: 1px solid var(--control);
+  color: var(--text);
+}
+#workspace button.secondary:hover { background: #f4f5f7; }
 
 /* Summary: the answer figure, then counts by kind. */
 .summary { font-variant-numeric: tabular-nums; }

@@ -12,6 +12,7 @@ from .detect import MODEL_LABELS, PATTERN_LABELS, Span
 from .documents import SUPPORTED, mask_file
 
 STATIC = Path(__file__).parent / "static"
+ICONS = STATIC / "icons"
 # Every label gets the one data hue; the inline tag names the kind.
 COLOR_MAP = {label: "#1d5fbf" for label in [*MODEL_LABELS.values(), *PATTERN_LABELS.values()]}
 KINDS = {
@@ -93,6 +94,28 @@ def _summary(spans: list[Span], warnings: list[str]) -> str:
     )
 
 
+def _run_button(state: str) -> gr.Button:
+    """The Mask PII button carries the job's state: idle (no file), ready, busy or done."""
+    if state == "idle":
+        return gr.Button(
+            "Mask PII", icon=str(ICONS / "mask-ink.svg"), variant="primary", interactive=False,
+            elem_classes=[],
+        )
+    if state == "busy":
+        return gr.Button(
+            "Masking…", icon=str(ICONS / "spinner.svg"), interactive=False, elem_classes=["busy"]
+        )
+    if state == "done":
+        return gr.Button(
+            "Mask again", icon=str(ICONS / "mask-ink.svg"), variant="secondary", interactive=True,
+            elem_classes=[],
+        )
+    return gr.Button(
+        "Mask PII", icon=str(ICONS / "mask.svg"), variant="primary", interactive=True,
+        elem_classes=[],
+    )
+
+
 def process(path: str | None):
     if not path:
         raise gr.Error("Upload a document first.")
@@ -107,7 +130,19 @@ def process(path: str | None):
         _summary(result.spans, result.warnings),
         gr.HTML(visible=False),
         gr.HighlightedText(_highlight(result.text, result.spans), visible=True),
-        gr.File(value=str(dst), visible=True),
+        gr.DownloadButton(f"Download {dst.name}", value=str(dst), visible=True),
+        _run_button("done"),
+    )
+
+
+def reset(path: str | None):
+    """A new or removed upload clears the previous document's results."""
+    return (
+        EMPTY_SUMMARY,
+        gr.HTML(visible=True),
+        gr.HighlightedText(None, visible=False),
+        gr.DownloadButton(value=None, visible=False),
+        _run_button("ready" if path else "idle"),
     )
 
 
@@ -118,10 +153,22 @@ def build() -> gr.Blocks:
         gr.HTML(TITLE)
         with gr.Row(equal_height=False, elem_id="workspace"):
             with gr.Column(scale=1, min_width=320, elem_id="controls"):
-                upload = gr.File(label="Document", file_types=list(SUPPORTED), type="filepath")
-                run = gr.Button("Mask PII", variant="primary")
+                upload = gr.File(
+                    label="Document",
+                    file_types=list(SUPPORTED),
+                    type="filepath",
+                    elem_id="upload",
+                )
+                gr.HTML('<p class="hint">TXT, DOCX or PDF. Scanned PDF pages are skipped.</p>')
+                # Download sits above the run button: once a file is masked, it is the next step.
+                download = gr.DownloadButton(
+                    icon=str(ICONS / "download.svg"),
+                    variant="primary",
+                    visible=False,
+                    elem_id="download",
+                )
+                run = _run_button("idle")
                 summary = gr.HTML(EMPTY_SUMMARY)
-                download = gr.File(label="Masked document", visible=False)
             with gr.Column(scale=2, min_width=420):
                 gr.HTML(
                     '<div class="panel-head"><h2>Review</h2><p>Detection is automated and can '
@@ -135,7 +182,13 @@ def build() -> gr.Blocks:
                     combine_adjacent=False,
                     elem_id="preview",
                 )
-        run.click(process, inputs=upload, outputs=[summary, empty, preview, download])
+        results = [summary, empty, preview, download, run]
+        # Gradio's per-output spinners overlap the panels; the button shows progress instead.
+        quiet = dict(show_progress="hidden", queue=False)
+        run.click(lambda: _run_button("busy"), outputs=run, **quiet).then(
+            process, inputs=upload, outputs=results, show_progress="hidden"
+        ).failure(lambda: _run_button("ready"), outputs=run, **quiet)
+        upload.change(reset, inputs=upload, outputs=results, **quiet)
     return demo
 
 
@@ -175,7 +228,18 @@ THEME = gr.themes.Base(
 # Light only: the dark variants take the light values, so a dark OS setting changes nothing.
 for _name in [k for k in vars(THEME) if k.endswith("_dark")]:
     setattr(THEME, _name, getattr(THEME, _name.removesuffix("_dark")))
-LAUNCH_KW = dict(theme=THEME, css_paths=[STATIC / "app.css"], head=_head(), footer_links=[])
+LAUNCH_KW = dict(
+    theme=THEME,
+    css_paths=[STATIC / "app.css"],
+    head=_head(),
+    footer_links=[],
+    i18n=gr.I18n(
+        en={
+            "upload_text.drop_file": "Drop your document here",
+            "upload_text.click_to_upload": "or click to browse",
+        }
+    ),
+)
 
 
 def main() -> None:
