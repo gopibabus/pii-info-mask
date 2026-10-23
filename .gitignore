@@ -14,3 +14,6 @@ wheels/
 *.onnx_data
 *.safetensors
 models/
+
+# Design-check working files
+.taste-skill/

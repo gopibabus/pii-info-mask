@@ -1,0 +1,238 @@
+/* Achromatic ledger: ink chrome on a blue-grey ground; the one hue (--data) marks detected PII. */
+:root {
+  --ground: #f2f4f7;
+  --surface: #ffffff;
+  --raised: #eeeeee;
+  --border: #e6e6e6;
+  --rule: #f0f0f0;
+  --control: #d4d4d4;
+  --text: #0a0a0a;
+  --muted: #5f6368;
+  --primary: #141414;
+  --data: #1d5fbf;
+  --data-pale: #e8eef8;
+  --pill-warning-bg: #fffbeb;
+  --pill-warning-ink: #92400e;
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --gap: 16px;
+  --pad: 24px;
+  --fs-title: 24px;
+  --fs-section: 16px;
+  --fs-kpi: 30px;
+  --fs-body: 14px;
+  --fs-small: 12px;
+}
+
+/* Canvas: one centred 1152px column, one gutter. */
+.gradio-container {
+  max-width: 1200px !important;
+  padding: 0 var(--pad) 48px !important;
+  margin: 0 auto !important;
+  background: var(--ground);
+}
+.gradio-container .main,
+.gradio-container .wrap { gap: var(--gap); }
+/* HTML blocks carry their own spacing, so text shares the panels' left edge. */
+.gradio-container .block:has(> .html-container) { padding: 0 !important; }
+.gradio-container .html-container { padding: 0 !important; }
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-section);
+  font-weight: 600;
+  color: var(--text);
+}
+.mark { width: 24px; height: 24px; color: var(--primary); }
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-body);
+  color: var(--muted);
+}
+.status .dot { width: 8px; height: 8px; border-radius: 50%; background: #2e7d32; }
+
+/* Title row */
+.title-row { padding: 8px 0 8px; }
+.title-row h1 {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.title-row p {
+  margin: 6px 0 0;
+  max-width: 68ch;
+  font-size: var(--fs-body);
+  line-height: 20px;
+  color: var(--muted);
+}
+
+/* Panels: white on the ground, one border, no shadow. */
+#workspace { gap: var(--gap); align-items: flex-start; }
+#workspace > .column {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 20px !important;
+  gap: var(--gap) !important;
+}
+#workspace > .column .block { border-color: var(--border); box-shadow: none; } /* taste-skill-ignore: removes the default */
+#workspace > .column > .html-container,
+#workspace > .column .block.padded:has(.summary),
+#workspace > .column .block:has(.panel-head) { border: 0; padding: 0; }
+
+.panel-head h2 {
+  margin: 0;
+  font-size: var(--fs-section);
+  font-weight: 600;
+  color: var(--text);
+}
+.panel-head p {
+  margin: 4px 0 0;
+  font-size: var(--fs-body);
+  line-height: 20px;
+  color: var(--muted);
+}
+
+/* Controls stay in view while a long document is read beside them. */
+@media (min-width: 900px) { #controls { position: sticky; top: 16px; } }
+
+/* Empty review: what the masked copy will say in place of each kind. */
+.kinds p {
+  margin: 0 0 16px;
+  max-width: 68ch;
+  font-size: var(--fs-body);
+  line-height: 20px;
+  color: var(--text);
+}
+.kinds ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.kinds li {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 32px;
+  font-size: var(--fs-body);
+  color: var(--muted);
+}
+.tag,
+#preview .label {
+  flex: none;
+  display: inline-block;
+  padding: 0 4px;
+  background: var(--data) !important;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  border-radius: 3px;
+}
+.kinds .tag {
+  justify-self: start;
+  background: var(--data-pale) !important;
+  color: #0b3d84;
+}
+
+/* Dropzone: a tone step, not a dashed box. */
+#workspace > .column [data-testid="file"] .wrap,
+#workspace > .column button.center { color: var(--muted); }
+#workspace > .column .block:has(input[type="file"]) {
+  background: #f7f8fa;
+  border: 1px solid var(--border) !important;
+  border-style: solid !important;
+}
+
+/* Primary action */
+button.primary {
+  height: 40px;
+  font-weight: 500;
+  font-size: var(--fs-body);
+  transition: background-color 120ms ease, transform 80ms ease;
+}
+button.primary:active { transform: translateY(1px); }
+button.primary:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+
+/* Summary: the answer figure, then counts by kind. */
+.summary { font-variant-numeric: tabular-nums; }
+.summary-empty { margin: 0; font-size: var(--fs-body); color: var(--muted); }
+.summary-total { margin: 0 0 12px; font-size: var(--fs-body); color: var(--muted); }
+.summary-total .figure {
+  font-size: var(--fs-kpi);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-right: 4px;
+}
+.summary ul { list-style: none; margin: 0; padding: 0; }
+.summary li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 4px;
+  padding: 6px 0;
+  font-size: var(--fs-body);
+}
+.summary .kind { color: var(--text); }
+.summary .n { text-align: right; color: var(--text); }
+.summary .bar {
+  grid-column: 1 / -1;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--control);
+}
+.summary li:first-child .bar { background: var(--text); }
+.summary .notice {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  background: var(--pill-warning-bg);
+  color: var(--pill-warning-ink);
+  font-size: var(--fs-body);
+  line-height: 20px;
+}
+
+/* Preview: the document, set for reading, with each detected item tinted in the data hue.
+   Gradio puts template whitespace in and between tokens; font-size 0 drops it, .text and
+   .label set their own size. */
+#preview { border: 0; padding: 0; background: transparent; }
+#preview .container { padding: 0; }
+#preview .textfield {
+  display: block;
+  font-size: 0;
+  line-height: 1.75;
+  color: var(--text);
+}
+#preview .token-container,
+#preview .token { display: inline; padding: 0; margin: 0; }
+#preview .text { font-size: 15px; white-space: pre-wrap; word-break: normal; overflow-wrap: anywhere; }
+#preview .line-break { display: block; height: 0; width: 100%; }
+#preview .line-break + .line-break { height: 14px; } /* px: the field is font-size 0 */
+#preview .token.highlighted {
+  background: var(--data-pale) !important;
+  color: #0b3d84 !important;
+  padding: 2px 4px;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+#preview .label { margin-left: 4px; vertical-align: 1px; }
+#preview .category-legend { display: none; }
